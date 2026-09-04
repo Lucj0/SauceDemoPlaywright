@@ -53,4 +53,33 @@ public class LoginTest : PageTest
         //Assert
         await Expect(Page.Locator("[data-test='inventory-item-name']")).ToContainTextAsync("Sauce Labs Backpack");
     }
+
+    
+    [Test]
+    public async Task CheckoutBackpack_RedirectsToCompletedOrder()
+    {
+        //Arrange
+        await Page.GotoAsync("https://www.saucedemo.com");
+
+        //Act
+        await Page.Locator("[data-test='username']").FillAsync("standard_user");
+        await Page.Locator("[data-test='password']").FillAsync("secret_sauce");
+        await Page.Locator("[data-test='login-button']").ClickAsync();
+
+        await Page.Locator("[data-test='add-to-cart-sauce-labs-backpack']").ClickAsync();
+        await Page.Locator("[data-test='shopping-cart-link']").ClickAsync();
+
+        await Page.Locator("[data-test='checkout']").ClickAsync();
+
+        await Page.Locator("[data-test='firstName']").FillAsync("Joe");
+        await Page.Locator("[data-test='lastName']").FillAsync("Bruin");
+        await Page.Locator("[data-test='postalCode']").FillAsync("12345");
+        await Page.Locator("[data-test='continue']").ClickAsync();
+
+        await Page.Locator("[data-test='finish']").ClickAsync();
+
+        //Assert
+        await Expect(Page).ToHaveURLAsync("https://www.saucedemo.com/checkout-complete.html");
+        await Expect(Page.Locator("[data-test='complete-text']")).ToBeVisibleAsync();
+    }
 }
