@@ -9,12 +9,11 @@ public class LoginTest : PageTest
     public async Task ValidLogin_RedirectsToProducts()
     {
         //Arrange
-        await Page.GotoAsync("https://www.saucedemo.com");
+        var loginPage = new LoginPage(Page);
+        await loginPage.GotoAsync();
 
         //Act
-        await Page.Locator("[data-test='username']").FillAsync("standard_user");
-        await Page.Locator("[data-test='password']").FillAsync("secret_sauce");
-        await Page.Locator("[data-test='login-button']").ClickAsync();
+        await loginPage.LoginAsync("standard_user", "secret_sauce");
 
         //Assert
         await Expect(Page).ToHaveURLAsync("https://www.saucedemo.com/inventory.html");
@@ -24,12 +23,11 @@ public class LoginTest : PageTest
     public async Task InvalidLogin_ShowsError()
     {
         //Arrange
-        await Page.GotoAsync("https://www.saucedemo.com");
+        var loginPage = new LoginPage(Page);
+        await loginPage.GotoAsync();
 
         //Act
-        await Page.Locator("[data-test='username']").FillAsync("wrong_user");
-        await Page.Locator("[data-test='password']").FillAsync("wrong_sauce");
-        await Page.Locator("[data-test='login-button']").ClickAsync();
+        await loginPage.LoginAsync("wrong_user", "wrong_sauce");
 
         //Assert
         await Expect(Page.Locator("[data-test='error']")).ToBeVisibleAsync();
@@ -40,15 +38,15 @@ public class LoginTest : PageTest
     public async Task AddBackpackToCart_CartShowsBackpack()
     {
         //Arrange
-        await Page.GotoAsync("https://www.saucedemo.com");
+        var loginPage = new LoginPage(Page);
+        var inventoryPage = new InventoryPage(Page);
+        await loginPage.GotoAsync();
 
         //Act
-        await Page.Locator("[data-test='username']").FillAsync("standard_user");
-        await Page.Locator("[data-test='password']").FillAsync("secret_sauce");
-        await Page.Locator("[data-test='login-button']").ClickAsync();
+        await loginPage.LoginAsync("standard_user", "secret_sauce");
 
-        await Page.Locator("[data-test='add-to-cart-sauce-labs-backpack']").ClickAsync();
-        await Page.Locator("[data-test='shopping-cart-link']").ClickAsync();
+        await inventoryPage.AddItemAsync("add-to-cart-sauce-labs-backpack");
+        await inventoryPage.GoToCartAsync();
 
         //Assert
         await Expect(Page.Locator("[data-test='inventory-item-name']")).ToContainTextAsync("Sauce Labs Backpack");
@@ -59,24 +57,24 @@ public class LoginTest : PageTest
     public async Task CheckoutBackpack_RedirectsToCompletedOrder()
     {
         //Arrange
-        await Page.GotoAsync("https://www.saucedemo.com");
+        var loginPage = new LoginPage(Page);
+        var inventoryPage = new InventoryPage(Page);
+        var cartPage = new CartPage(Page);
+        var checkoutInfoPage = new CheckoutInfoPage(Page);
+        var checkoutOverviewPage = new CheckoutOverviewPage(Page);
+        await loginPage.GotoAsync();
 
         //Act
-        await Page.Locator("[data-test='username']").FillAsync("standard_user");
-        await Page.Locator("[data-test='password']").FillAsync("secret_sauce");
-        await Page.Locator("[data-test='login-button']").ClickAsync();
+        await loginPage.LoginAsync("standard_user", "secret_sauce");
 
-        await Page.Locator("[data-test='add-to-cart-sauce-labs-backpack']").ClickAsync();
-        await Page.Locator("[data-test='shopping-cart-link']").ClickAsync();
+        await inventoryPage.AddItemAsync("add-to-cart-sauce-labs-backpack");
+        await inventoryPage.GoToCartAsync();
 
-        await Page.Locator("[data-test='checkout']").ClickAsync();
+        await cartPage.GoToCheckoutAsync();
 
-        await Page.Locator("[data-test='firstName']").FillAsync("Joe");
-        await Page.Locator("[data-test='lastName']").FillAsync("Bruin");
-        await Page.Locator("[data-test='postalCode']").FillAsync("12345");
-        await Page.Locator("[data-test='continue']").ClickAsync();
+        await checkoutInfoPage.CheckoutInfoAndContinueAsync("Alvin", "Gwak", "123456");
 
-        await Page.Locator("[data-test='finish']").ClickAsync();
+        await checkoutOverviewPage.FinishCheckoutAsync();
 
         //Assert
         await Expect(Page).ToHaveURLAsync("https://www.saucedemo.com/checkout-complete.html");
