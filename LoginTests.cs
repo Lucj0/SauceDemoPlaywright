@@ -63,7 +63,7 @@ public class LoginTest : PageTest
         await loginPage.LoginAsync("error_user", "secret_sauce");
         await inventoryPage.GoToCartAsync();
         await cartPage.GoToCheckoutAsync();
-        await checkoutInfoPage.CheckoutInfo("Alvin", "Gwak", "12345");
+        await checkoutInfoPage.CheckoutInfoAsync("Alvin", "Gwak", "12345");
 
         //Assert
         await Expect(Page.Locator("[data-test='lastName']")).ToHaveValueAsync("");
