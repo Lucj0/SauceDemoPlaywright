@@ -16,6 +16,11 @@ public class CartPage
         await _page.Locator("[data-test='continue-shopping']").ClickAsync();
     }
 
+    public async Task RemoveItemFromCartAsync(string removeDataTestId)
+    {
+        await _page.Locator($"[data-test='{removeDataTestId}']").ClickAsync();
+    }
+
     public async Task GoToCheckoutAsync()
     {
         await _page.Locator("[data-test='checkout']").ClickAsync();

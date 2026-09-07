@@ -35,26 +35,42 @@ public class LoginTest : PageTest
     }
 
     [Test]
-    public async Task AddBackpackToCart_CartShowsBackpack()
+    public async Task LockedOutUserLogin_ConfirmsLockedOut()
+    {
+        //Arrange
+        var loginPage = new LoginPage(Page);
+        await loginPage.GotoAsync();
+
+        //Act
+        await loginPage.LoginAsync("locked_out_user", "secret_sauce");
+
+        //Assert
+        await Expect(Page.Locator("[data-test='error']")).ToBeVisibleAsync();
+        await Expect(Page.Locator("[data-test='error']")).ToContainTextAsync("Epic sadface: Sorry, this user has been locked out.");
+    }
+
+    [Test]
+    public async Task ErrorUserLogin_CheckoutInfoLastNameError()
     {
         //Arrange
         var loginPage = new LoginPage(Page);
         var inventoryPage = new InventoryPage(Page);
+        var cartPage = new CartPage(Page);
+        var checkoutInfoPage = new CheckoutInfoPage(Page);
         await loginPage.GotoAsync();
 
         //Act
-        await loginPage.LoginAsync("standard_user", "secret_sauce");
-
-        await inventoryPage.AddItemAsync("add-to-cart-sauce-labs-backpack");
+        await loginPage.LoginAsync("error_user", "secret_sauce");
         await inventoryPage.GoToCartAsync();
+        await cartPage.GoToCheckoutAsync();
+        await checkoutInfoPage.CheckoutInfo("Alvin", "Gwak", "12345");
 
         //Assert
-        await Expect(Page.Locator("[data-test='inventory-item-name']")).ToContainTextAsync("Sauce Labs Backpack");
+        await Expect(Page.Locator("[data-test='lastName']")).ToHaveValueAsync("");
     }
 
-    
     [Test]
-    public async Task CheckoutBackpack_RedirectsToCompletedOrder()
+    public async Task ErrorUserLogin_CheckoutOverviewFinishError()
     {
         //Arrange
         var loginPage = new LoginPage(Page);
@@ -65,19 +81,13 @@ public class LoginTest : PageTest
         await loginPage.GotoAsync();
 
         //Act
-        await loginPage.LoginAsync("standard_user", "secret_sauce");
-
-        await inventoryPage.AddItemAsync("add-to-cart-sauce-labs-backpack");
+        await loginPage.LoginAsync("error_user", "secret_sauce");
         await inventoryPage.GoToCartAsync();
-
         await cartPage.GoToCheckoutAsync();
-
-        await checkoutInfoPage.CheckoutInfoAndContinueAsync("Alvin", "Gwak", "123456");
-
+        await checkoutInfoPage.CheckoutInfoAndContinueAsync("Alvin", "Gwak", "12345");
         await checkoutOverviewPage.FinishCheckoutAsync();
 
         //Assert
-        await Expect(Page).ToHaveURLAsync("https://www.saucedemo.com/checkout-complete.html");
-        await Expect(Page.Locator("[data-test='complete-text']")).ToBeVisibleAsync();
+        await Expect(Page).ToHaveURLAsync("https://www.saucedemo.com/checkout-step-two.html");
     }
 }
