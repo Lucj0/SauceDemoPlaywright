@@ -19,4 +19,9 @@ public class InventoryPage
     {
         await _page.Locator("[data-test='shopping-cart-link']").ClickAsync();
     }
+
+    public async Task SortItems(string sortMethod)
+    {
+        await _page.Locator("[data-test='product-sort-container']").SelectOptionAsync($"{sortMethod}");
+    }
 }

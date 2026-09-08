@@ -108,4 +108,28 @@ public class CartTests : PageTest
         //Assert
         await Expect(Page.Locator("[data-test='shopping-cart-badge']")).ToContainTextAsync("2");
     }
+
+    [Test]
+    public async Task SortItems_ShowsItemsLowToHighPrice()
+    {
+        //Arrange
+        var loginPage = new LoginPage(Page);
+        var inventoryPage = new InventoryPage(Page);
+        var cartPage = new CartPage(Page);
+        await loginPage.GotoAsync();
+
+        //Act
+        await loginPage.LoginAsync("standard_user", "secret_sauce");
+        await inventoryPage.SortItems("lohi");
+
+        //Assert
+        var priceString = await Page.Locator("[data-test='inventory-item-price']").AllTextContentsAsync();
+
+        var prices = priceString.Select(p => decimal.Parse(p.Replace("$", ""))).ToList();
+
+        for (int i = 0; i < (prices.Count - 1); i++)
+        {
+            Assert.That(prices[i] <= prices[i+1]);
+        }
+    }
 }
