@@ -20,8 +20,10 @@ Locators target `data-test` attributes wherever available, since these are purpo
 ## Coverage
 
 - **Happy path** — full purchase flow: login → add to cart → checkout → order confirmation
-- **Authentication** — valid login, invalid credentials, locked-out user
-- **Defect documentation** — tests that reproduce known bugs in SauceDemo's intentionally broken `error_user` account (last-name field fails to persist; checkout cannot be completed)
+- **Authentication** — valid login, invalid credentials, and locked-out user (asserting the specific lockout error)
+- **Cart operations** — adding items, removing to an empty cart, targeted removal (removing one of several items leaves the correct item), and multi-item cart badge count
+- **Sorting** — verifies price low-to-high ordering by extracting all prices and asserting ascending order
+- **Defect documentation** — tests that reproduce known bugs in SauceDemo's intentionally broken `error_user` account: the last-name field fails to persist, and checkout cannot be completed
 
 ### Known limitations
 
